@@ -60,7 +60,7 @@ function App() {
         >
         <div className="space-y-3">
           <Badge variant="brand" className="rounded-full px-4 py-1 text-xs uppercase tracking-[0.3em] bg-gradient-to-r from-brand-500 to-cyan-400 text-white">
-            <Sparkles className="mr-2 h-4 w-4" /> AI Study Command Center
+            <Sparkles className="mr-2 h-4 w-4" /> A Pyintel Product
           </Badge>
           <div>
         <h1
