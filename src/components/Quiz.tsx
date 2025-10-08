@@ -108,7 +108,7 @@ export function Quiz({ questions }: QuizProps) {
             <span className="rounded-full bg-brand-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-brand-600 dark:text-brand-300">
               Vocabulary
             </span>
-            <p className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100">{currentQuestion.word}</p>
+            {/* <p className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100">{currentQuestion.word}</p> */}
           </div>
 
           <motion.h3
