@@ -98,16 +98,23 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
         transition={{ duration: 0.4, ease: 'easeOut' }}
         className="text-center"
       >
-        <Badge variant="brand" className="mb-4 inline-flex items-center gap-2 text-sm">
-          <Sparkles className="h-4 w-4" /> AI-Powered Study Companion
-        </Badge>
-        <h1 className="font-serif text-4xl font-semibold text-slate-900 dark:text-white md:text-5xl">
-          Enter Your AP Lang Vocabulary
-        </h1>
-        <p className="mx-auto mt-3 max-w-2xl text-base text-slate-600 dark:text-slate-300">
-          Add 3-50 vocabulary words and we will craft flashcards, quizzes, matching games, and paragraph practice
-          tailored to your study goals.
-        </p>
+<Badge
+  variant="brand"
+  className="mb-6 inline-flex items-center gap-2 px-3 py-1 text-base rounded-xl font-sans bg-gradient-to-r from-cyan-300 via-indigo-400 to-purple-500 text-white shadow-lg drop-shadow"
+>
+  <Sparkles className="h-5 w-5 animate-bounce" />
+  AI-Powered Study Companion
+</Badge>
+
+<h1 className="font-sans text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent tracking-widest drop-shadow-[0_0_15px_rgba(147,197,253,0.5)] uppercase">
+  Enter Your Vocabulary List
+</h1>
+
+<p className="mx-auto mt-4 max-w-2xl text-base font-sans text-slate-700 dark:text-slate-200 rounded-lg shadow-sm leading-relaxed bg-opacity-80 backdrop-blur">
+  Add <span className="font-bold bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent">3–50 vocabulary words</span> and we’ll craft <span className="font-semibold underline">flashcards, quizzes, matching games</span>, and <span className="italic">paragraph practice</span> tailored to your study goals.
+</p>
+
+
       </motion.header>
 
       <Card className="border-white/20 bg-white/80 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/70">
