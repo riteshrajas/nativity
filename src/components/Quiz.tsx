@@ -108,8 +108,10 @@ export function Quiz({ questions }: QuizProps) {
             <span className="rounded-full bg-brand-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-brand-600 dark:text-brand-300">
               Vocabulary
             </span>
+            <br></br>
             {/* <p className="mt-3 text-lg font-semibold text-slate-800 dark:text-slate-100">{currentQuestion.word}</p> */}
           </div>
+          <br></br>
 
           <motion.h3
             key={currentQuestion.question}
@@ -191,6 +193,7 @@ export function Quiz({ questions }: QuizProps) {
               </motion.div>
             )}
           </AnimatePresence>
+          <br></br>
 
           <div className="flex justify-end">
             <Button
