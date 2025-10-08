@@ -6,8 +6,7 @@ import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/Card';
 import { ParagraphEditor } from './ParagraphEditor';
-import { Tabs } from './ui/Tabs';
-import { TabsList, TabsTrigger } from '@radix-ui/react-tabs';
+import { Tabs, TabsList, TabsTrigger } from './ui/Tabs';
 
 export interface ParagraphQuestion {
   question: string;
@@ -82,8 +81,12 @@ export function ParagraphPractice({ paragraphData }: ParagraphPracticeProps) {
         </p>
       </header>
 
-      <Tabs value={mode} onValueChange={(value) => setMode(value as 'practice' | 'editor')} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs className="w-full">
+        <TabsList 
+          value={mode} 
+          onChange={(event: React.SyntheticEvent, newValue: string) => setMode(newValue as 'practice' | 'editor')} 
+          className="grid w-full grid-cols-2"
+        >
           <TabsTrigger value="practice" className="gap-2">
             <FileText className="h-4 w-4" /> Practice Mode
           </TabsTrigger>

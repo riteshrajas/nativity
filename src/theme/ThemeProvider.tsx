@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
+import { createTheme, ThemeProvider as MuiThemeProvider, CssBaseline } from '@mui/material';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -70,7 +71,50 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<ThemeContextValue>(() => ({ theme, setTheme, resolvedTheme: resolveTheme(theme) }), [theme]);
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  // Create a MUI theme that mirrors the app's branding and respects the resolved theme
+  const muiTheme = useMemo(() => {
+    const mode = resolveTheme(theme);
+    return createTheme({
+      palette: {
+        mode,
+        primary: {
+          // cyan-ish primary to match existing brand
+          main: '#06b6d4',
+        },
+        secondary: {
+          main: '#7c3aed',
+        },
+        background: {
+          default: mode === 'dark' ? '#0f1724' : '#f8fafc',
+          paper: mode === 'dark' ? '#111827' : '#ffffff',
+        },
+      },
+      typography: {
+        fontFamily: [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'Segoe UI',
+          'Roboto',
+          'Helvetica Neue',
+          'Arial',
+          'Noto Sans',
+          'sans-serif',
+        ].join(','),
+      },
+      shape: {
+        borderRadius: 12,
+      },
+    });
+  }, [theme]);
+
+  return (
+    <MuiThemeProvider theme={muiTheme}>
+      <CssBaseline />
+      <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+    </MuiThemeProvider>
+  );
 }
 
 export function useTheme() {

@@ -1,10 +1,16 @@
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Plus, Sparkles, KeyRound, X, ShieldCheck, ClipboardPaste, Info } from 'lucide-react';
-import { Button } from './ui/Button';
-import { Badge } from './ui/Badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/Card';
-
+import TextField from '@mui/material/TextField';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Chip from '@mui/material/Chip';
+import Collapse from '@mui/material/Collapse';
+import Alert from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 import { generateQuizContent, QuizGenerationResult } from '../services/geminiService';
 
@@ -26,9 +32,7 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
 
   const handleRemoveWord = (index: number) => {
     setVocabList((prev) => {
-      if (prev.length === 1) {
-        return prev;
-      }
+      if (prev.length === 1) return prev;
       return prev.filter((_, i) => i !== index);
     });
   };
@@ -44,7 +48,7 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
     const pasted = event.clipboardData.getData('text');
     const words = pasted
-      .split(/[\n,]/)
+      .split(/[,\n]/)
       .map((word) => word.trim())
       .filter(Boolean);
 
@@ -91,213 +95,143 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+    <Box sx={{ mx: 'auto', width: '100%', maxWidth: 900, display: 'flex', flexDirection: 'column', gap: 3 }}>
       <motion.header
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="text-center"
       >
-<Badge
-  variant="brand"
-  className="mb-6 inline-flex items-center gap-2 px-3 py-1 text-base rounded-xl font-sans bg-gradient-to-r from-cyan-300 via-indigo-400 to-purple-500 text-white shadow-lg drop-shadow"
->
-  <Sparkles className="h-5 w-5 animate-bounce" />
-  AI-Powered Study Companion
-</Badge>
+        <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={{ mb: 2 }}>
+          <Chip color="primary" label="AI-Powered Study Companion" icon={<Sparkles className="h-5 w-5" />} sx={{ fontWeight: 700 }} />
+        </Stack>
 
-<h1 className="font-sans text-4xl md:text-5xl font-bold bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent tracking-widest drop-shadow-[0_0_15px_rgba(147,197,253,0.5)] uppercase">
-  Enter Your Vocabulary List
-</h1>
+        <Typography variant="h3" align="center" sx={{ fontWeight: 800, letterSpacing: 2 }}>
+          Enter Your Vocabulary List
+        </Typography>
 
-<p className="mx-auto mt-4 max-w-2xl text-base font-sans text-slate-700 dark:text-slate-200 rounded-lg shadow-sm leading-relaxed bg-opacity-80 backdrop-blur">
-  Add <span className="font-bold bg-gradient-to-tr from-cyan-400 via-indigo-500 to-purple-500 bg-clip-text text-transparent">3–50 vocabulary words</span> and we’ll craft <span className="font-semibold underline">flashcards, quizzes, matching games</span>, and <span className="italic">paragraph practice</span> tailored to your study goals.
-</p>
-
-
+        <Typography variant="body1" align="center" sx={{ mt: 1, color: 'text.secondary', maxWidth: 720, mx: 'auto' }}>
+          Add <strong>3–50 vocabulary words</strong> and we’ll craft <strong>flashcards, quizzes, matching games</strong>, and <em>paragraph practice</em> tailored to your study goals.
+        </Typography>
       </motion.header>
 
-      <Card className="border-white/20 bg-white/80 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/70">
-        <CardHeader className="flex flex-col gap-2 text-left md:flex-row md:items-end md:justify-between">
-          <div>
-            <Badge variant="subtle" className="mb-2 inline-flex items-center gap-2 text-xs uppercase tracking-widest">
-              <ClipboardPaste className="h-3.5 w-3.5" /> Quick Entry Supported
-            </Badge>
-            <CardTitle className="font-serif text-2xl text-slate-900 dark:text-white">
-              Vocabulary List
-            </CardTitle>
-            <CardDescription>
-              Paste a comma-separated list or add words one by one. We recommend focusing on 10-15 words per session
-              for best results.
-            </CardDescription>
-          </div>
-          <div className="flex flex-col items-start gap-1 text-sm text-slate-500 dark:text-slate-300">
-            <span className="font-medium text-slate-700 dark:text-slate-100">{filledCount} words added</span>
-            <span className="text-xs">Goal: 3-50 words</span>
-          </div>
-        </CardHeader>
+      <Paper elevation={6} sx={{ p: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Box>
+            <Chip icon={<ClipboardPaste className="h-4 w-4" />} label="Quick Entry Supported" variant="outlined" />
+            <Typography variant="h6" sx={{ mt: 1 }}>Vocabulary List</Typography>
+            <Typography variant="body2" color="text.secondary">Paste a comma-separated list or add words one by one. We recommend focusing on 10-15 words per session for best results.</Typography>
+          </Box>
 
-        <CardContent className="gap-6">
-          <div className="flex flex-col gap-3">
-            <AnimatePresence initial={false}>
-              {vocabList.map((word, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="group flex items-center gap-3 rounded-2xl border border-white/40 bg-white/70 px-4 py-3 shadow-inner backdrop-blur dark:border-white/10 dark:bg-slate-900/60"
-                >
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-500/90 to-indigo-400/90 text-sm font-semibold text-white shadow-inner shadow-brand-500/40">
-                    {index + 1}
-                  </span>
-                  <input
+          <Box sx={{ textAlign: 'right' }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>{filledCount} words added</Typography>
+            <Typography variant="caption" color="text.secondary">Goal: 3-50 words</Typography>
+          </Box>
+        </Box>
+
+        <Stack spacing={2}>
+          <AnimatePresence initial={false}>
+            {vocabList.map((word, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Chip label={index + 1} color="secondary" sx={{ minWidth: 36 }} />
+                  <TextField
                     value={word}
                     onChange={(event) => handleWordChange(index, event.target.value)}
                     onPaste={index === 0 ? handlePaste : undefined}
                     placeholder="Enter vocabulary word"
-                    className="flex-1 border-none bg-transparent text-base font-medium text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-100"
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    inputProps={{ 'aria-label': `vocab-${index}` }}
                   />
                   {vocabList.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveWord(index)}
-                      className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 dark:text-slate-300 dark:hover:bg-slate-800"
-                      aria-label="Remove word"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
+                    <IconButton aria-label="remove" onClick={() => handleRemoveWord(index)}>
+                      <X />
+                    </IconButton>
                   )}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="rounded-full border-slate-200 bg-white/60 px-5 py-2 text-slate-700 hover:bg-white dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-100"
-                onClick={handleAddWord}
-              >
-                <Plus className="h-4 w-4" /> Add another word
-              </Button>
-
-              <Button
-                type="button"
-                disabled={isGenerating || filledCount < 3}
-                onClick={handleGenerate}
-                className="rounded-full px-6 py-3 text-base shadow-lg"
-              >
-                <Sparkles className="h-5 w-5" />
-                {isGenerating ? 'Generating...' : 'Generate Study Materials'}
-              </Button>
-
-              <Badge variant="info" className="rounded-full">
-                <Info className="h-4 w-4" /> Paste 10+ words at once
-              </Badge>
-            </div>
-          </div>
-
-          <div className="grid gap-4 rounded-2xl border border-white/30 bg-white/60 p-5 backdrop-blur dark:border-white/10 dark:bg-slate-900/50 md:grid-cols-2">
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-1 h-5 w-5 text-emerald-500" />
-              <div>
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-100">Privacy respectful</p>
-                <p className="text-sm text-slate-500 dark:text-slate-300">
-                  Your API key stays on your device and is stored locally when provided.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowApiPanel((prev) => !prev)}
-              className="flex items-start gap-3 rounded-xl border border-dashed border-slate-300 bg-white/50 p-3 text-left text-sm transition hover:border-brand-400 hover:bg-white dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-200"
-            >
-              <KeyRound className="mt-1 h-5 w-5 text-brand-500" />
-              <div>
-                <p className="font-semibold">Configure Gemini API key (optional)</p>
-                <p className="text-xs text-slate-500 dark:text-slate-300">Use your own key for higher rate limits.</p>
-              </div>
-            </button>
-          </div>
-
-          <AnimatePresence initial={false}>
-            {showApiPanel && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.25 }}
-                className="overflow-hidden"
-              >
-                <div className="rounded-2xl border border-brand-500/20 bg-brand-50/60 p-5 text-sm shadow-inner dark:border-brand-400/30 dark:bg-brand-500/10">
-                  <label htmlFor="api-key" className="mb-1 block text-xs font-semibold uppercase tracking-widest text-brand-600 dark:text-brand-200">
-                    Google Gemini API key
-                  </label>
-                  <input
-                    id="api-key"
-                    type="password"
-                    value={apiKey}
-                    onChange={(event) => setApiKey(event.target.value)}
-                    placeholder="Enter your API key or leave blank to use the shared key"
-                    className="mt-2 w-full rounded-xl border border-brand-500/30 bg-white/90 px-4 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none dark:bg-slate-950/60 dark:text-slate-100"
-                  />
-                  <p className="mt-3 text-xs text-brand-700 dark:text-brand-200">
-                    Retrieve a free key at{' '}
-                    <a
-                      href="https://makersuite.google.com/app/apikey"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-semibold underline decoration-dotted"
-                    >
-                      Google AI Studio
-                    </a>
-                    .
-                  </p>
-                </div>
+                </Box>
               </motion.div>
-            )}
+            ))}
           </AnimatePresence>
 
-          <div className="grid gap-4 rounded-2xl bg-white/40 p-5 text-sm shadow-inner backdrop-blur dark:bg-slate-900/40 md:grid-cols-2">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300">
-                Tips
-              </p>
-              <ul className="mt-2 space-y-2 text-slate-600 dark:text-slate-300">
+          <Stack direction="row" spacing={1}>
+            <Button variant="outlined" startIcon={<Plus />} onClick={handleAddWord}>Add another word</Button>
+            <Button variant="contained" startIcon={<Sparkles />} disabled={isGenerating || filledCount < 3} onClick={handleGenerate}>
+              {isGenerating ? 'Generating...' : 'Generate Study Materials'}
+            </Button>
+            <Chip icon={<Info />} label="Paste 10+ words at once" />
+          </Stack>
+
+          <Paper variant="outlined" sx={{ p: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <ShieldCheck className="h-5 w-5 text-emerald-500" />
+              <Box>
+                <Typography variant="subtitle2">Privacy respectful</Typography>
+                <Typography variant="body2" color="text.secondary">Your API key stays on your device and is stored locally when provided.</Typography>
+              </Box>
+            </Box>
+
+            <Button variant="outlined" startIcon={<KeyRound />} onClick={() => setShowApiPanel((prev) => !prev)}>
+              Configure Gemini API key (optional)
+            </Button>
+          </Paper>
+
+          <Collapse in={showApiPanel} timeout={200}>
+            <Paper sx={{ p: 2 }} elevation={2}>
+              <Typography variant="caption" sx={{ fontWeight: 700 }}>Google Gemini API key</Typography>
+              <TextField
+                id="api-key"
+                type="password"
+                value={apiKey}
+                onChange={(event) => setApiKey(event.target.value)}
+                placeholder="Enter your API key or leave blank to use the shared key"
+                variant="outlined"
+                size="small"
+                fullWidth
+                sx={{ mt: 1 }}
+              />
+              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                Retrieve a free key at <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noreferrer">Google AI Studio</a>.
+              </Typography>
+            </Paper>
+          </Collapse>
+
+          <Paper variant="outlined" sx={{ p: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+            <Box>
+              <Typography variant="overline">Tips</Typography>
+              <ul>
                 <li>Use specific vocabulary sets you want to master this week.</li>
                 <li>Ensure each word is spelled correctly for accurate AI responses.</li>
                 <li>Revisit generated materials regularly to reinforce retention.</li>
               </ul>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-300">
-                What you&apos;ll receive
-              </p>
-              <ul className="mt-2 space-y-2 text-slate-600 dark:text-slate-300">
+            </Box>
+            <Box>
+              <Typography variant="overline">What you'll receive</Typography>
+              <ul>
                 <li>Interactive flashcards with definitions and usage examples.</li>
                 <li>Auto-graded quizzes with instant feedback.</li>
                 <li>Matching games and paragraph practice for deeper context.</li>
               </ul>
-            </div>
-          </div>
-        </CardContent>
+            </Box>
+          </Paper>
+        </Stack>
 
         {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-4 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-600 dark:text-rose-300"
-          >
-            {error}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
           </motion.div>
         )}
-      </Card>
-    </div>
+      </Paper>
+    </Box>
   );
 }
 
-export default VocabInput;
+// End of file
 
 

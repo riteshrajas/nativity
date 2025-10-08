@@ -1,32 +1,15 @@
-import clsx from 'clsx';
-import { ReactNode } from 'react';
+import * as React from 'react';
+import Chip from '@mui/material/Chip';
 
-const variants = {
-  brand: 'bg-gradient-to-r from-brand-500 to-cyan-400 text-white shadow-lg shadow-brand-500/30',
-  subtle: 'bg-white/60 text-slate-700 dark:bg-slate-800/70 dark:text-slate-200',
-  success: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300',
-  warning: 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
-  info: 'bg-sky-500/15 text-sky-600 dark:text-sky-300',
-};
-
-export type BadgeVariant = keyof typeof variants;
+export type BadgeVariant = 'brand' | 'subtle' | 'success' | 'warning' | 'info';
 
 interface BadgeProps {
-  children: ReactNode;
+  children: React.ReactNode;
   className?: string;
   variant?: BadgeVariant;
 }
 
-export function Badge({ children, className, variant = 'subtle' }: BadgeProps) {
-  return (
-    <span
-      className={clsx(
-        'inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium tracking-wide',
-        variants[variant],
-        className,
-      )}
-    >
-      {children}
-    </span>
-  );
+export function Badge({ children, variant = 'subtle' }: BadgeProps) {
+  const color = variant === 'brand' ? 'primary' : variant === 'info' ? 'info' : variant === 'success' ? 'success' : undefined;
+  return <Chip label={String(children)} color={color as any} size="small" />;
 }

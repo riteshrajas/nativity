@@ -51,39 +51,7 @@ function App() {
       </div>
 
     <div className="relative z-10 flex min-h-screen flex-col">
-      <header className="mx-auto w-full max-w-6xl px-4 pt-10 md:px-8">
-        <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-6 shadow-[0_25px_70px_-35px_rgba(56,189,248,0.45)] backdrop-blur-xl md:flex-row md:items-center md:justify-between"
-        >
-        <div className="space-y-3">
-          <Badge variant="brand" className="rounded-full px-4 py-1 text-xs uppercase tracking-[0.3em] bg-gradient-to-r from-brand-500 to-cyan-400 text-white">
-            <Sparkles className="mr-2 h-4 w-4" /> A Pyintel Product
-          </Badge>
-          <div>
-  <h1 className="font-sans text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent tracking-widest drop-shadow-[0_0_15px_rgba(147,197,253,0.6)] uppercase rounded-xl">
-  Nativity
-</h1>
-
-
-            <p className="mt-2 max-w-xl text-sm text-white/70 leading-relaxed">
-            </p>
-          </div>
-          
-        </div>
-        <div className="flex items-center gap-3 self-start md:self-auto">
-          {hasGeneratedContent && (
-            <Button variant="ghost" className="rounded-full border border-white/20 text-sm text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200" onClick={handleReset}>
-            <Plus className="h-4 w-4" /> New list
-            </Button>
-          )}
-          <ThemeMenu />
-        </div>
-        </motion.div>
-      </header>
-
+     
         <main className="relative flex-1 px-4 pb-16 pt-10 md:px-8">
           {isLoading && (
             <div className="absolute inset-0 z-40 flex items-center justify-center bg-slate-950/70 backdrop-blur">
@@ -103,8 +71,12 @@ function App() {
 
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
             {hasGeneratedContent && (
-              <Tabs value={mode} onValueChange={(value) => setMode(value as LearningMode)} className="w-full max-w-3xl mx-auto">
-                <TabsList className="grid w-full grid-cols-4">
+              <Tabs className="w-full max-w-3xl mx-auto">
+                <TabsList 
+                  value={mode} 
+                  onChange={(_: any, value: any) => setMode(value as LearningMode)} 
+                  className="grid w-full grid-cols-4"
+                >
                   <TabsTrigger value="flashcards" className="gap-2">
                     <BookOpen className="h-4 w-4" /> Flashcards
                   </TabsTrigger>

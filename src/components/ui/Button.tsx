@@ -1,27 +1,38 @@
-import clsx from 'clsx';
-import { ButtonHTMLAttributes, forwardRef } from 'react';
+import * as React from 'react';
+import MuiButton, { ButtonProps as MuiButtonProps } from '@mui/material/Button';
+import { forwardRef } from 'react';
 
-const baseStyles =
-  'inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70';
+// Keep the same variant API used across the app but map to MUI equivalents.
+export type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'text' | 'contained';
 
-const variants = {
-  primary:
-    'bg-gradient-to-r from-brand-500 via-indigo-500 to-cyan-400 text-white shadow-lg shadow-brand-500/40 hover:translate-y-[-1px] hover:shadow-xl hover:shadow-brand-500/50',
-  outline:
-    'border border-white/30 bg-white/20 text-white hover:bg-white/30 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-100 dark:hover:bg-slate-900/70',
-  ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800/60',
-};
-
-export type ButtonVariant = keyof typeof variants;
-
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<MuiButtonProps, 'variant'> {
   variant?: ButtonVariant;
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', type = 'button', ...props }, ref) => (
-    <button ref={ref} type={type} className={clsx(baseStyles, variants[variant], className)} {...props} />
-  ),
-);
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { variant = 'primary', sx, children, ...props },
+  ref,
+) {
+  // Map custom variants to MUI variant + styling
+  const muiVariant: MuiButtonProps['variant'] = variant === 'outline' ? 'outlined' : variant === 'ghost' ? 'text' : 'contained';
+
+  const additionalSx =
+    variant === 'primary'
+      ? {
+          background: 'linear-gradient(90deg,#06b6d4,#7c3aed,#06b6d4)',
+          color: 'common.white',
+          boxShadow: (theme: any) => theme.shadows[4],
+          textTransform: 'none',
+        }
+      : variant === 'ghost'
+      ? { textTransform: 'none' }
+      : {};
+
+  return (
+    <MuiButton ref={ref} variant={muiVariant} sx={{ ...additionalSx, ...sx }} {...(props as any)}>
+      {children}
+    </MuiButton>
+  );
+});
 
 Button.displayName = 'Button';
