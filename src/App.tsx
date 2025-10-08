@@ -63,14 +63,10 @@ function App() {
             <Sparkles className="mr-2 h-4 w-4" /> A Pyintel Product
           </Badge>
           <div>
-        <h1
-  className="font-sans text-4xl md:text-5xl font-bold 
-             bg-gradient-to-r from-cyan-300 via-blue-500 to-purple-500 
-             bg-clip-text text-transparent 
-             drop-shadow-lg tracking-wide uppercase"
->
-  Pyintel Nativity
+  <h1 className="font-sans text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 via-indigo-500 to-purple-600 bg-clip-text text-transparent tracking-widest drop-shadow-[0_0_15px_rgba(147,197,253,0.6)] uppercase rounded-xl">
+  Nativity
 </h1>
+
 
             <p className="mt-2 max-w-xl text-sm text-white/70 leading-relaxed">
             </p>
