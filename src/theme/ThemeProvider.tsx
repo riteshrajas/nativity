@@ -39,44 +39,23 @@ function resolveTheme(theme: Theme): 'light' | 'dark' {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => readStoredTheme());
+  // Always use dark theme
+  const theme: Theme = 'dark';
+  const setTheme = () => {}; // No-op function since theme is locked
 
   useEffect(() => {
-    const resolved = resolveTheme(theme);
+    // Always set dark mode
     const root = document.documentElement;
+    root.classList.add('dark');
+  }, []);
 
-    if (resolved === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+  const value = useMemo<ThemeContextValue>(() => ({ theme, setTheme, resolvedTheme: 'dark' }), []);
 
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch {
-      // ignore write failures
-    }
-  }, [theme]);
-
-  useEffect(() => {
-    if (theme !== 'system') {
-      return undefined;
-    }
-
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    const listener = () => setTheme('system');
-    media.addEventListener('change', listener);
-    return () => media.removeEventListener('change', listener);
-  }, [theme]);
-
-  const value = useMemo<ThemeContextValue>(() => ({ theme, setTheme, resolvedTheme: resolveTheme(theme) }), [theme]);
-
-  // Create a MUI theme that mirrors the app's branding and respects the resolved theme
+  // Create a MUI theme that is always dark mode
   const muiTheme = useMemo(() => {
-    const mode = resolveTheme(theme);
     return createTheme({
       palette: {
-        mode,
+        mode: 'dark',
         primary: {
           // cyan-ish primary to match existing brand
           main: '#06b6d4',
@@ -85,8 +64,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
           main: '#7c3aed',
         },
         background: {
-          default: mode === 'dark' ? '#0f1724' : '#f8fafc',
-          paper: mode === 'dark' ? '#111827' : '#ffffff',
+          default: '#0f1724',
+          paper: '#111827',
         },
       },
       typography: {
@@ -107,7 +86,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         borderRadius: 12,
       },
     });
-  }, [theme]);
+  }, []);
 
   return (
     <MuiThemeProvider theme={muiTheme}>
