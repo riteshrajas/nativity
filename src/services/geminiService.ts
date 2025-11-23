@@ -13,7 +13,7 @@ const getAPIKey = () => {
   }
 
   // Then check environment variable
-  const envKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const envKey = import.meta.env.VITE_GEMINI_API_KEY as string;
   if (envKey && envKey !== 'your_api_key_here') {
     return envKey;
   }
@@ -311,6 +311,74 @@ export const generateMoreParagraph = async (
   } catch (error) {
     console.error('Error generating more paragraphs:', error);
     throw new Error('Failed to generate a new paragraph. Please try again.');
+  }
+};
+
+export const generateHangmanWords = async (
+  theme: string,
+  count: number,
+  difficulty: 'easy' | 'medium' | 'hard' | 'custom'
+): Promise<FlashcardItem[]> => {
+  try {
+    const API_KEY = getAPIKey();
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+
+    let prompt = '';
+    if (difficulty === 'custom') {
+      prompt = `Generate ${count} vocabulary words related to the theme "${theme}".
+      IMPORTANT: These words should be "spicy hard" - challenging, obscure, or complex words that fit the theme.
+      
+      For each word, provide:
+      1. The word itself
+      2. A clear definition
+      3. A hint (synonym or context clue)
+      
+      Format as JSON:
+      {
+        "words": [
+          {
+            "word": "example",
+            "definition": "definition here",
+            "mnemonic": "hint here" 
+          }
+        ]
+      }`;
+    } else {
+      // Fallback or standard generation if needed, though standard usually uses existing list
+      prompt = `Generate ${count} vocabulary words for a ${difficulty} level Hangman game.
+      Format as JSON:
+      {
+        "words": [
+          {
+            "word": "example",
+            "definition": "definition here",
+            "mnemonic": "hint here"
+          }
+        ]
+      }`;
+    }
+
+    const result = await retryAPICall(() => model.generateContent(prompt));
+    const text = result.response.text();
+    const data = extractAndParseJson(text);
+
+    // Map to FlashcardItem structure (partial)
+    return data.words.map((item: any) => ({
+      word: item.word,
+      definition: item.definition,
+      mnemonic: item.mnemonic,
+      // Fill other required fields with placeholders as they aren't needed for Hangman
+      synonyms: '',
+      antonyms: '',
+      context: '',
+      etymology: '',
+      example: ''
+    }));
+
+  } catch (error) {
+    console.error('Error generating hangman words:', error);
+    throw new Error('Failed to generate custom hangman words.');
   }
 };
 

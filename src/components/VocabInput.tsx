@@ -26,6 +26,10 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
   const [showApiPanel, setShowApiPanel] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // New state for input mode
+  const [inputMode, setInputMode] = useState<'list' | 'paragraph'>('list');
+  const [paragraphText, setParagraphText] = useState('');
+
   const filledCount = useMemo(() => vocabList.filter((word) => word.trim() !== '').length, [vocabList]);
 
   const handleAddWord = () => setVocabList((prev) => [...prev, '']);
@@ -55,6 +59,27 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
     if (words.length > 1) {
       event.preventDefault();
       setVocabList(words.slice(0, 50));
+    }
+  };
+
+  const handleProcessParagraph = () => {
+    if (!paragraphText.trim()) return;
+
+    // Split by common delimiters: commas, newlines, periods, semicolons
+    const words = paragraphText
+      .split(/[,\n.;]+/)
+      .map((word) => word.trim())
+      .filter((word) => word.length > 0);
+
+    if (words.length > 0) {
+      // Limit to 50 words
+      const limitedWords = words.slice(0, 50);
+      setVocabList(limitedWords);
+      setInputMode('list');
+      setParagraphText('');
+      setError(null);
+    } else {
+      setError('Could not extract any words from the text.');
     }
   };
 
@@ -141,9 +166,15 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
       <Paper elevation={6} sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
           <Box>
-            <Chip icon={<ClipboardPaste className="h-4 w-4" />} label="Quick Entry Supported" variant="outlined" />
-            <Typography variant="h6" sx={{ mt: 1 }}>Vocabulary List</Typography>
-            <Typography variant="body2" color="text.secondary">Paste a comma-separated list or add words one by one. We recommend focusing on 10-15 words per session for best results.</Typography>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+              <Chip icon={<ClipboardPaste className="h-4 w-4" />} label="Quick Entry Supported" variant="outlined" />
+            </Stack>
+            <Typography variant="h6">Vocabulary List</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {inputMode === 'list'
+                ? "Paste a comma-separated list or add words one by one."
+                : "Paste a paragraph of text and we'll extract the words for you."}
+            </Typography>
           </Box>
 
           <Box sx={{ textAlign: 'right' }}>
@@ -152,99 +183,148 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
           </Box>
         </Box>
 
-        <Stack spacing={2}>
-          <AnimatePresence initial={false}>
-            {vocabList.map((word, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Chip label={index + 1} color="secondary" sx={{ minWidth: 36 }} />
-                  <TextField
-                    value={word}
-                    onChange={(event) => handleWordChange(index, event.target.value)}
-                    onPaste={index === 0 ? handlePaste : undefined}
-                    placeholder="Enter vocabulary word"
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    inputProps={{ 'aria-label': `vocab-${index}` }}
-                  />
-                  {vocabList.length > 1 && (
-                    <IconButton aria-label="remove" onClick={() => handleRemoveWord(index)}>
-                      <X />
-                    </IconButton>
-                  )}
-                </Box>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<Plus />} onClick={handleAddWord}>Add another word</Button>
-            <Button variant="contained" startIcon={<Sparkles />} disabled={isGenerating || filledCount < 3} onClick={handleGenerate}>
-              {isGenerating ? 'Generating...' : 'Generate Study Materials'}
+        <Box sx={{ mb: 3 }}>
+          <Stack direction="row" spacing={1} justifyContent="center" sx={{ bgcolor: 'action.hover', p: 0.5, borderRadius: 2, display: 'inline-flex' }}>
+            <Button
+              size="small"
+              variant={inputMode === 'list' ? 'contained' : 'text'}
+              onClick={() => setInputMode('list')}
+              sx={{ minWidth: 100 }}
+            >
+              List View
             </Button>
-            <Chip icon={<Info />} label="Paste 10+ words at once" />
+            <Button
+              size="small"
+              variant={inputMode === 'paragraph' ? 'contained' : 'text'}
+              onClick={() => setInputMode('paragraph')}
+              sx={{ minWidth: 100 }}
+            >
+              Paragraph
+            </Button>
           </Stack>
+        </Box>
 
-          <Paper variant="outlined" sx={{ p: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <ShieldCheck className="h-5 w-5 text-emerald-500" />
-              <Box>
-                <Typography variant="subtitle2">Privacy respectful</Typography>
-                <Typography variant="body2" color="text.secondary">Your API key stays on your device and is stored locally when provided.</Typography>
-              </Box>
-            </Box>
-
-            <Button variant="outlined" startIcon={<KeyRound />} onClick={() => setShowApiPanel((prev) => !prev)}>
-              Configure Gemini API key (optional)
+        {inputMode === 'paragraph' ? (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <TextField
+              multiline
+              rows={8}
+              fullWidth
+              placeholder="Paste your paragraph here. We'll automatically separate the words..."
+              value={paragraphText}
+              onChange={(e) => setParagraphText(e.target.value)}
+              variant="outlined"
+              sx={{ mb: 2 }}
+            />
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleProcessParagraph}
+              disabled={!paragraphText.trim()}
+              startIcon={<Sparkles />}
+            >
+              Extract Words from Paragraph
             </Button>
-          </Paper>
+          </motion.div>
+        ) : (
+          <Stack spacing={2}>
+            <AnimatePresence initial={false}>
+              {vocabList.map((word, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Chip label={index + 1} color="secondary" sx={{ minWidth: 36 }} />
+                    <TextField
+                      value={word}
+                      onChange={(event) => handleWordChange(index, event.target.value)}
+                      onPaste={index === 0 ? handlePaste : undefined}
+                      placeholder="Enter vocabulary word"
+                      variant="outlined"
+                      fullWidth
+                      size="small"
+                      inputProps={{ 'aria-label': `vocab-${index}` }}
+                    />
+                    {vocabList.length > 1 && (
+                      <IconButton aria-label="remove" onClick={() => handleRemoveWord(index)}>
+                        <X />
+                      </IconButton>
+                    )}
+                  </Box>
+                </motion.div>
+              ))}
+            </AnimatePresence>
 
-          <Collapse in={showApiPanel} timeout={200}>
-            <Paper sx={{ p: 2 }} elevation={2}>
-              <Typography variant="caption" sx={{ fontWeight: 700 }}>Google Gemini API key</Typography>
-              <TextField
-                id="api-key"
-                type="password"
-                value={apiKey}
-                onChange={(event) => setApiKey(event.target.value)}
-                placeholder="Enter your API key or leave blank to use the shared key"
-                variant="outlined"
-                size="small"
-                fullWidth
-                sx={{ mt: 1 }}
-              />
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-                Retrieve a free key at <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noreferrer">Google AI Studio</a>.
-              </Typography>
-            </Paper>
-          </Collapse>
+            <Stack direction="row" spacing={1}>
+              <Button variant="outlined" startIcon={<Plus />} onClick={handleAddWord}>Add another word</Button>
+              <Button variant="contained" startIcon={<Sparkles />} disabled={isGenerating || filledCount < 3} onClick={handleGenerate}>
+                {isGenerating ? 'Generating...' : 'Generate Study Materials'}
+              </Button>
+              <Chip icon={<Info />} label="Paste 10+ words at once" />
+            </Stack>
+          </Stack>
+        )}
 
-          <Paper variant="outlined" sx={{ p: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
+        <Paper variant="outlined" sx={{ p: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mt: 3 }}>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <ShieldCheck className="h-5 w-5 text-emerald-500" />
             <Box>
-              <Typography variant="overline">Tips</Typography>
-              <ul>
-                <li>Use specific vocabulary sets you want to master this week.</li>
-                <li>Ensure each word is spelled correctly for accurate AI responses.</li>
-                <li>Revisit generated materials regularly to reinforce retention.</li>
-              </ul>
+              <Typography variant="subtitle2">Privacy respectful</Typography>
+              <Typography variant="body2" color="text.secondary">Your API key stays on your device and is stored locally when provided.</Typography>
             </Box>
-            <Box>
-              <Typography variant="overline">What you'll receive</Typography>
-              <ul>
-                <li>Interactive flashcards with definitions and usage examples.</li>
-                <li>Auto-graded quizzes with instant feedback.</li>
-                <li>Matching games and paragraph practice for deeper context.</li>
-              </ul>
-            </Box>
+          </Box>
+
+          <Button variant="outlined" startIcon={<KeyRound />} onClick={() => setShowApiPanel((prev) => !prev)}>
+            Configure Gemini API key (optional)
+          </Button>
+        </Paper>
+
+        <Collapse in={showApiPanel} timeout={200}>
+          <Paper sx={{ p: 2, mt: 2 }} elevation={2}>
+            <Typography variant="caption" sx={{ fontWeight: 700 }}>Google Gemini API key</Typography>
+            <TextField
+              id="api-key"
+              type="password"
+              value={apiKey}
+              onChange={(event) => setApiKey(event.target.value)}
+              placeholder="Enter your API key or leave blank to use the shared key"
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ mt: 1 }}
+            />
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+              Retrieve a free key at <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noreferrer">Google AI Studio</a>.
+            </Typography>
           </Paper>
-        </Stack>
+        </Collapse>
+
+        <Paper variant="outlined" sx={{ p: 2, display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2, mt: 2 }}>
+          <Box>
+            <Typography variant="overline">Tips</Typography>
+            <ul>
+              <li>Use specific vocabulary sets you want to master this week.</li>
+              <li>Ensure each word is spelled correctly for accurate AI responses.</li>
+              <li>Revisit generated materials regularly to reinforce retention.</li>
+            </ul>
+          </Box>
+          <Box>
+            <Typography variant="overline">What you'll receive</Typography>
+            <ul>
+              <li>Interactive flashcards with definitions and usage examples.</li>
+              <li>Auto-graded quizzes with instant feedback.</li>
+              <li>Matching games and paragraph practice for deeper context.</li>
+            </ul>
+          </Box>
+        </Paper>
 
         {error && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

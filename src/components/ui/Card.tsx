@@ -8,12 +8,13 @@ import { motion } from 'framer-motion';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }
 
-export function Card({ children, className }: CardProps) {
+export function Card({ children, className, onClick }: CardProps) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
-      <MuiCard elevation={3} sx={{ borderRadius: 3 }} className={className as string}>
+      <MuiCard elevation={3} sx={{ borderRadius: 3 }} className={className as string} onClick={onClick}>
         {children}
       </MuiCard>
     </motion.div>

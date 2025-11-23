@@ -1,16 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Brain, FileText, Grid3X3, Plus, Sparkles } from 'lucide-react';
+import { BookOpen, Brain, FileText, Grid3X3 } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
 import { Flashcards } from './components/Flashcards';
 import Quiz from './components/Quiz';
-import Matching from './components/Matching';
+import { GameArea } from './components/GameArea';
 import ParagraphPractice from './components/ParagraphPractice';
-// If TabItem is not exported from Tabs, define it locally:
 import { Tabs, TabsList, TabsTrigger } from './components/ui/Tabs';
-import { ThemeMenu } from './components/ui/ThemeMenu';
-import { Button } from './components/ui/Button';
-import { Badge } from './components/ui/Badge';
 import { QuizGenerationResult } from './services/geminiService';
 import { VocabInput } from './components/VocabInput';
 
@@ -29,13 +25,6 @@ function App() {
     setQuizData(data);
     setVocabularyList(vocabList);
     setMode('flashcards');
-    setIsLoading(false);
-  };
-
-  const handleReset = () => {
-    setQuizData(null);
-    setVocabularyList([]);
-    setMode('input');
     setIsLoading(false);
   };
 
@@ -85,7 +74,7 @@ function App() {
                     <Brain className="h-4 w-4" /> Quiz
                   </TabsTrigger>
                   <TabsTrigger value="matching" className="gap-2">
-                    <Grid3X3 className="h-4 w-4" /> Matching
+                    <Grid3X3 className="h-4 w-4" /> Games
                   </TabsTrigger>
                   <TabsTrigger value="paragraph" className="gap-2">
                     <FileText className="h-4 w-4" /> Paragraph
@@ -105,7 +94,7 @@ function App() {
 
                 {mode === 'quiz' && quizData ? <Quiz questions={quizData.quiz} vocabularyWords={vocabularyList} /> : null}
 
-                {mode === 'matching' && quizData ? <Matching pairs={quizData.matching} /> : null}
+                {mode === 'matching' && quizData ? <GameArea flashcards={quizData.flashcards} /> : null}
 
                 {mode === 'paragraph' && quizData ? <ParagraphPractice paragraphData={quizData.paragraph} vocabularyWords={vocabularyList} /> : null}
               </div>
