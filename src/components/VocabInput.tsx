@@ -114,6 +114,28 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
         <Typography variant="body1" align="center" sx={{ mt: 1, color: 'text.secondary', maxWidth: 720, mx: 'auto' }}>
           Add <strong>3–50 vocabulary words</strong> and we’ll craft <strong>flashcards, quizzes, matching games</strong>, and <em>paragraph practice</em> tailored to your study goals.
         </Typography>
+        <Alert severity="warning" icon={<Info className="h-5 w-5" />} sx={{ mt: 3, mx: 'auto', maxWidth: 800, border: '1px solid rgba(245, 158, 11, 0.3)', bgcolor: 'rgba(255, 251, 235, 0.05)' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, color: 'warning.main', mb: 0.5 }}>
+            A New Chapter Begins! We're Moving!
+          </Typography>
+          <Typography variant="body2" color="text.primary">
+            Our app is embarking on an exciting journey to a new home! To continue enjoying all its features, please join us at:
+            <br />
+            <a href="https://nativity.pyintel.online/" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 underline hover:text-blue-800">https://nativity.pyintel.online/</a> or <a href="https://nativity.pages.dev/" target="_blank" rel="noopener noreferrer" className="font-bold text-blue-600 underline hover:text-blue-800">https://nativity.pages.dev/</a>
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+            Mark your calendars! After <strong>December 3rd</strong>, this old address (nativity-sage.vercel.app) will close its doors. Don't forget to update your bookmarks for a seamless transition!
+          </Typography>
+        </Alert>
+
+        <Alert severity="info" icon={<ShieldCheck className="h-5 w-5" />} sx={{ mt: 2, mx: 'auto', maxWidth: 800, bgcolor: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+          <Typography variant="caption" sx={{ display: 'block', color: 'text.primary', fontWeight: 500 }}>
+            Created by a high school student for students.
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            This is a generous free service with high maintenance costs. Please use it responsibly and do not spam requests.
+          </Typography>
+        </Alert>
       </motion.header>
 
       <Paper elevation={6} sx={{ p: 3 }}>
@@ -230,6 +252,12 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
           </motion.div>
         )}
       </Paper>
+
+      <Typography variant="caption" align="center" sx={{ display: 'block', color: 'text.secondary', opacity: 0.7, maxWidth: 600, mx: 'auto', pb: 4 }}>
+        This app is created and developed by a single developer. Please do not spam the app.
+        This is a generous service provided by a high school student for high school students.
+        The maintenance cost is high. Feel free to use this as needed, but please do not spam it.
+      </Typography>
     </Box>
   );
 }

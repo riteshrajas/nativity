@@ -75,6 +75,15 @@ export function SplashScreen({ onComplete, durationMs = 2600 }: SplashScreenProp
                 transition={{ duration: durationMs / 1000, ease: 'easeInOut' }}
               />
             </motion.div>
+
+            <motion.p
+              className="mt-6 max-w-xs text-[10px] leading-relaxed text-white/60"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              Created by a high school student. Please use responsibly.
+            </motion.p>
           </motion.div>
         </motion.div>
       )}

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Brain, FileText, Grid3X3, Plus, Sparkles } from 'lucide-react';
 import SplashScreen from './components/SplashScreen';
-import Flashcards from './components/Flashcards';
+import { Flashcards } from './components/Flashcards';
 import Quiz from './components/Quiz';
 import Matching from './components/Matching';
 import ParagraphPractice from './components/ParagraphPractice';
@@ -113,8 +113,13 @@ function App() {
           </div>
         </main>
 
-        <footer className="border-t border-white/10 bg-slate-950/60 px-4 py-6 text-center text-xs tracking-[0.5em] uppercase text-white/40">
-          Powered by Pyintel • Google Gemini
+        <footer className="border-t border-white/10 bg-slate-950/60 px-4 py-6 text-center text-xs text-white/40">
+          <p className="mb-2 tracking-[0.2em] uppercase">Powered by Pyintel • Google Gemini</p>
+          <p className="mx-auto max-w-2xl text-[10px] leading-relaxed opacity-60">
+            This app is created and developed by a single developer. Please do not spam the app.
+            This is a generous service provided by a high school student for high school students.
+            The maintenance cost is high. Feel free to use this as needed, but please do not spam it.
+          </p>
         </footer>
       </div>
     </div>

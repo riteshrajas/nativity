@@ -97,7 +97,7 @@ export const generateQuizContent = async (vocabularyList: string[]): Promise<Qui
     const quizText = quizResult.response.text();
     const quizData = extractAndParseJson(quizText);
 
-    // Generate Flashcards with ALL required fields
+    // Generate Flashcards with ALL required fields including mnemonics
     const flashcardPrompt = `Create comprehensive flashcards for these AP Lang vocabulary words: ${vocabString}.
     
     IMPORTANT: You MUST provide ALL of the following fields for each word:
@@ -108,6 +108,9 @@ export const generateQuizContent = async (vocabularyList: string[]): Promise<Qui
     5. A context sentence showing typical usage
     6. Etymology (word origin and root meaning)
     7. An example sentence using the word
+    8. A creative MNEMONIC - a memory trick, funny association, rhyme, or story to help remember the word
+    
+    For the mnemonic, be creative! Use wordplay, visual imagery, funny stories, or rhymes. Make it memorable and engaging.
     
     Format your response as JSON with this structure:
     {
@@ -119,12 +122,13 @@ export const generateQuizContent = async (vocabularyList: string[]): Promise<Qui
           "antonyms": "antonym1, antonym2, antonym3",
           "context": "A sentence showing typical usage context",
           "etymology": "Word origin and root meaning",
-          "example": "An example sentence using the word"
+          "example": "An example sentence using the word",
+          "mnemonic": "A creative, memorable trick to remember this word"
         }
       ]
     }
     
-    Do NOT skip any fields. Every flashcard must have all 7 fields filled in.`;
+    Do NOT skip any fields. Every flashcard must have all 8 fields filled in.`;
 
     const flashcardResult = await model.generateContent(flashcardPrompt);
     const flashcardText = flashcardResult.response.text();
