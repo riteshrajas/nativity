@@ -8,6 +8,10 @@ import { Card } from './ui/Card';
 export interface FlashcardItem {
   word: string;
   definition: string;
+  synonyms?: string;
+  antonyms?: string;
+  context?: string;
+  etymology?: string;
   example: string;
 }
 
@@ -102,7 +106,7 @@ export function Flashcards({ flashcards }: FlashcardsProps) {
       </header>
 
       <div className="relative flex flex-col items-center gap-6">
-        <div className="relative h-[420px] w-full max-w-3xl cursor-pointer [perspective:1200px]" onClick={() => setIsFlipped((prev) => !prev)}>
+        <div className="relative h-[520px] w-full max-w-3xl cursor-pointer [perspective:1200px]" onClick={() => setIsFlipped((prev) => !prev)}>
           <AnimatePresence initial={false} custom={direction}>
             <motion.div
               key={`${index}-${isFlipped ? 'back' : 'front'}`}
@@ -133,18 +137,69 @@ export function Flashcards({ flashcards }: FlashcardsProps) {
                     <p className="text-sm text-slate-500 dark:text-slate-300">Tap to reveal the definition and example</p>
                   </div>
                 ) : (
-                  <div className="flex h-full flex-col gap-6">
+                  <div className="flex h-full flex-col gap-5 overflow-y-auto pr-2">
+                    {/* Definition */}
                     <div>
-                      <span className="rounded-full bg-brand-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-brand-600 dark:text-brand-300">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-brand-600 dark:text-brand-400">
                         Definition
-                      </span>
-                      <p className="mt-3 text-lg font-medium leading-relaxed text-slate-800 dark:text-slate-100">
+                      </h4>
+                      <p className="mt-2 text-base leading-relaxed text-slate-800 dark:text-slate-100">
                         {currentCard.definition}
                       </p>
                     </div>
-                    <div className="rounded-2xl bg-slate-100/80 p-4 text-left text-base italic text-slate-600 backdrop-blur dark:bg-slate-800/60 dark:text-slate-200">
-                      “{currentCard.example}”
-                    </div>
+
+                    {/* Synonyms & Antonyms Grid */}
+                    {(currentCard.synonyms || currentCard.antonyms) && (
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Synonyms */}
+                        {currentCard.synonyms && (
+                          <div>
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                              Synonyms
+                            </h4>
+                            <p className="mt-2 text-sm italic text-slate-600 dark:text-slate-300">
+                              {currentCard.synonyms}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Antonyms */}
+                        {currentCard.antonyms && (
+                          <div>
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
+                              Antonyms
+                            </h4>
+                            <p className="mt-2 text-sm italic text-slate-600 dark:text-slate-300">
+                              {currentCard.antonyms}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Context */}
+                    {currentCard.context && (
+                      <div className="rounded-2xl bg-slate-100/80 p-4 backdrop-blur dark:bg-slate-800/60">
+                        <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" />
+                          </svg>
+                          Context
+                        </h4>
+                        <p className="mt-2 text-sm italic leading-relaxed text-slate-700 dark:text-slate-200">
+                          "{currentCard.context}"
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Etymology */}
+                    {currentCard.etymology && (
+                      <div className="mt-auto pt-3">
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                          <span className="font-semibold">Etymology:</span> {currentCard.etymology}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

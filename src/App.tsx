@@ -21,19 +21,20 @@ function App() {
   const [mode, setMode] = useState<LearningMode>('input');
   const [quizData, setQuizData] = useState<QuizGenerationResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [vocabularyList, setVocabularyList] = useState<string[]>([]);
 
   const hasGeneratedContent = Boolean(quizData);
 
-
-
-  const handleQuizDataGenerated = (data: QuizGenerationResult) => {
+  const handleQuizDataGenerated = (data: QuizGenerationResult, vocabList: string[]) => {
     setQuizData(data);
+    setVocabularyList(vocabList);
     setMode('flashcards');
     setIsLoading(false);
   };
 
   const handleReset = () => {
     setQuizData(null);
+    setVocabularyList([]);
     setMode('input');
     setIsLoading(false);
   };
@@ -50,8 +51,8 @@ function App() {
         <div className="absolute inset-x-0 bottom-[-20%] h-[60%] bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
       </div>
 
-    <div className="relative z-10 flex min-h-screen flex-col">
-     
+      <div className="relative z-10 flex min-h-screen flex-col">
+
         <main className="relative flex-1 px-4 pb-16 pt-10 md:px-8">
           {isLoading && (
             <div className="absolute inset-0 z-40 flex items-center justify-center bg-slate-950/70 backdrop-blur">
@@ -72,9 +73,9 @@ function App() {
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-10">
             {hasGeneratedContent && (
               <Tabs className="w-full max-w-3xl mx-auto">
-                <TabsList 
-                  value={mode} 
-                  onChange={(_: any, value: any) => setMode(value as LearningMode)} 
+                <TabsList
+                  value={mode}
+                  onChange={(_: any, value: any) => setMode(value as LearningMode)}
                   className="grid w-full grid-cols-4"
                 >
                   <TabsTrigger value="flashcards" className="gap-2">
@@ -102,11 +103,11 @@ function App() {
 
                 {mode === 'flashcards' && quizData ? <Flashcards flashcards={quizData.flashcards} /> : null}
 
-                {mode === 'quiz' && quizData ? <Quiz questions={quizData.quiz} /> : null}
+                {mode === 'quiz' && quizData ? <Quiz questions={quizData.quiz} vocabularyWords={vocabularyList} /> : null}
 
                 {mode === 'matching' && quizData ? <Matching pairs={quizData.matching} /> : null}
 
-                {mode === 'paragraph' && quizData ? <ParagraphPractice paragraphData={quizData.paragraph} /> : null}
+                {mode === 'paragraph' && quizData ? <ParagraphPractice paragraphData={quizData.paragraph} vocabularyWords={vocabularyList} /> : null}
               </div>
             </div>
           </div>

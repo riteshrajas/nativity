@@ -15,7 +15,7 @@ import Stack from '@mui/material/Stack';
 import { generateQuizContent, QuizGenerationResult } from '../services/geminiService';
 
 interface VocabInputProps {
-  onGenerate: (result: QuizGenerationResult) => void;
+  onGenerate: (result: QuizGenerationResult, vocabList: string[]) => void;
   onLoadingChange: (isLoading: boolean) => void;
 }
 
@@ -81,7 +81,7 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
       }
 
       const result = await generateQuizContent(normalized);
-      onGenerate(result);
+      onGenerate(result, normalized);
     } catch (generateError) {
       setError(
         generateError instanceof Error
@@ -99,7 +99,9 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
       <motion.header
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
+        transition={{
+          duration: 0.4, ease: 'easeOut'
+        }}
       >
         <Stack direction="row" spacing={2} alignItems="center" justifyContent="center" sx={{ mb: 2 }}>
           <Chip color="primary" label="AI-Powered Study Companion" icon={<Sparkles className="h-5 w-5" />} sx={{ fontWeight: 700 }} />

@@ -1,12 +1,16 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
-import { CheckCircle2, RotateCcw, XCircle, BookOpenCheck, Edit, FileText } from 'lucide-react';
+import { CheckCircle2, RotateCcw, XCircle, BookOpenCheck, Edit, FileText, Plus } from 'lucide-react';
+import TextField from '@mui/material/TextField';
+import Collapse from '@mui/material/Collapse';
+import Stack from '@mui/material/Stack';
 import { Badge } from './ui/Badge';
 import { Button } from './ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/Card';
 import { ParagraphEditor } from './ParagraphEditor';
 import { Tabs, TabsList, TabsTrigger } from './ui/Tabs';
+import { generateMoreParagraph } from '../services/geminiService';
 
 export interface ParagraphQuestion {
   question: string;
@@ -20,12 +24,18 @@ export interface ParagraphData {
 
 interface ParagraphPracticeProps {
   paragraphData: ParagraphData | null;
+  vocabularyWords?: string[];
 }
 
-export function ParagraphPractice({ paragraphData }: ParagraphPracticeProps) {
+export function ParagraphPractice({ paragraphData: initialParagraphData, vocabularyWords }: ParagraphPracticeProps) {
+  const [paragraphData, setParagraphData] = useState(initialParagraphData);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [showResults, setShowResults] = useState(false);
   const [mode, setMode] = useState<'practice' | 'editor'>('practice');
+  const [showGeneratePanel, setShowGeneratePanel] = useState(false);
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'custom'>('medium');
+  const [customTopic, setCustomTopic] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const vocabWords = useMemo(() => {
     if (!paragraphData?.paragraph) return [];
@@ -69,6 +79,32 @@ export function ParagraphPractice({ paragraphData }: ParagraphPracticeProps) {
     setShowResults(false);
   };
 
+  const handleGenerateMore = async () => {
+    if (!vocabularyWords || vocabularyWords.length === 0) {
+      alert('No vocabulary words available to generate more paragraphs.');
+      return;
+    }
+
+    if (difficulty === 'custom' && !customTopic.trim()) {
+      alert('Please enter a custom topic.');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const newParagraphData = await generateMoreParagraph(vocabularyWords, difficulty, customTopic);
+      setParagraphData(newParagraphData);
+      setAnswers({});
+      setShowResults(false);
+      setShowGeneratePanel(false);
+      setIsGenerating(false);
+    } catch (error) {
+      console.error('Error generating more paragraphs:', error);
+      alert('Failed to generate a new paragraph. Please try again.');
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
       <header className="flex flex-col items-center gap-3 text-center">
@@ -81,10 +117,96 @@ export function ParagraphPractice({ paragraphData }: ParagraphPracticeProps) {
         </p>
       </header>
 
+      {/* Generate More Paragraphs Panel */}
+      {vocabularyWords && vocabularyWords.length > 0 && (
+        <div className="rounded-2xl border border-white/20 bg-white/60 p-4 backdrop-blur dark:border-white/10 dark:bg-slate-900/60">
+          <button
+            onClick={() => setShowGeneratePanel(!showGeneratePanel)}
+            className="flex w-full items-center justify-between text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Plus className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+              <span className="font-semibold text-slate-900 dark:text-white">Generate New Paragraph</span>
+            </div>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              {showGeneratePanel ? 'Hide' : 'Show'} Options
+            </span>
+          </button>
+
+          <Collapse in={showGeneratePanel}>
+            <div className="mt-4 space-y-4">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Generate a new paragraph with different difficulty or theme for more practice.
+              </p>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Difficulty Level
+                </label>
+                <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                  <Button
+                    variant={difficulty === 'easy' ? 'primary' : 'outline'}
+                    onClick={() => setDifficulty('easy')}
+                    className="min-w-[80px]"
+                  >
+                    😊 Easy
+                  </Button>
+                  <Button
+                    variant={difficulty === 'medium' ? 'primary' : 'outline'}
+                    onClick={() => setDifficulty('medium')}
+                    className="min-w-[80px]"
+                  >
+                    📚 Medium
+                  </Button>
+                  <Button
+                    variant={difficulty === 'hard' ? 'primary' : 'outline'}
+                    onClick={() => setDifficulty('hard')}
+                    className="min-w-[80px]"
+                  >
+                    🔥 Hard
+                  </Button>
+                  <Button
+                    variant={difficulty === 'custom' ? 'primary' : 'outline'}
+                    onClick={() => setDifficulty('custom')}
+                    className="min-w-[80px]"
+                  >
+                    ✨ Custom
+                  </Button>
+                </Stack>
+              </div>
+
+              <Collapse in={difficulty === 'custom'}>
+                <TextField
+                  value={customTopic}
+                  onChange={(e) => setCustomTopic(e.target.value)}
+                  placeholder="E.g., 'environmental issues', 'historical events', 'social commentary'"
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  label="Custom Topic/Theme"
+                  helperText="Enter a theme or topic for the new paragraph"
+                />
+              </Collapse>
+
+              <Button
+                variant="primary"
+                onClick={handleGenerateMore}
+                disabled={isGenerating}
+                className="w-full"
+              >
+                {isGenerating ? 'Generating...' : 'Generate New Paragraph'}
+              </Button>
+            </div>
+          </Collapse>
+        </div>
+      )}
+
       <Tabs className="w-full">
-        <TabsList 
-          value={mode} 
-          onChange={(event: React.SyntheticEvent, newValue: string) => setMode(newValue as 'practice' | 'editor')} 
+        <TabsList
+          value={mode}
+          onChange={(event: React.SyntheticEvent, newValue: string) => setMode(newValue as 'practice' | 'editor')}
           className="grid w-full grid-cols-2"
         >
           <TabsTrigger value="practice" className="gap-2">

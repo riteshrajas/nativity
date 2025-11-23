@@ -1,10 +1,14 @@
 import clsx from 'clsx';
 import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, RotateCcw, Trophy, XCircle } from 'lucide-react';
+import { CheckCircle2, RotateCcw, Trophy, XCircle, Plus } from 'lucide-react';
+import TextField from '@mui/material/TextField';
+import Collapse from '@mui/material/Collapse';
+import Stack from '@mui/material/Stack';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
 import { Card, CardContent } from './ui/Card';
+import { generateMoreQuizQuestions } from '../services/geminiService';
 
 export interface QuizQuestion {
   question: string;
@@ -15,13 +19,19 @@ export interface QuizQuestion {
 
 interface QuizProps {
   questions: QuizQuestion[];
+  vocabularyWords?: string[];
 }
 
-export function Quiz({ questions }: QuizProps) {
+export function Quiz({ questions: initialQuestions, vocabularyWords }: QuizProps) {
+  const [questions, setQuestions] = useState(initialQuestions);
   const [index, setIndex] = useState(0);
   const [selection, setSelection] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
+  const [showGeneratePanel, setShowGeneratePanel] = useState(false);
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | 'custom'>('medium');
+  const [customTopic, setCustomTopic] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const currentQuestion = questions[index];
 
@@ -51,6 +61,30 @@ export function Quiz({ questions }: QuizProps) {
     setSelection(null);
     setScore(0);
     setShowResults(false);
+  };
+
+  const handleGenerateMore = async () => {
+    if (!vocabularyWords || vocabularyWords.length === 0) {
+      alert('No vocabulary words available to generate more questions.');
+      return;
+    }
+
+    if (difficulty === 'custom' && !customTopic.trim()) {
+      alert('Please enter a custom topic.');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const newQuestions = await generateMoreQuizQuestions(vocabularyWords, difficulty, customTopic);
+      setQuestions([...questions, ...newQuestions]);
+      setShowGeneratePanel(false);
+      setIsGenerating(false);
+    } catch (error) {
+      console.error('Error generating more questions:', error);
+      alert('Failed to generate more questions. Please try again.');
+      setIsGenerating(false);
+    }
   };
 
   if (!questions?.length) {
@@ -101,6 +135,92 @@ export function Quiz({ questions }: QuizProps) {
           </div>
         </div>
       </header>
+
+      {/* Generate More Questions Panel - Show when vocabulary words are available */}
+      {vocabularyWords && vocabularyWords.length > 0 && (
+        <div className="rounded-2xl border border-white/20 bg-white/60 p-4 backdrop-blur dark:border-white/10 dark:bg-slate-900/60">
+          <button
+            onClick={() => setShowGeneratePanel(!showGeneratePanel)}
+            className="flex w-full items-center justify-between text-left"
+          >
+            <div className="flex items-center gap-2">
+              <Plus className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+              <span className="font-semibold text-slate-900 dark:text-white">Generate More Questions</span>
+            </div>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              {showGeneratePanel ? 'Hide' : 'Show'} Options
+            </span>
+          </button>
+
+          <Collapse in={showGeneratePanel}>
+            <div className="mt-4 space-y-4">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Generate additional quiz questions for more practice with your vocabulary words.
+              </p>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Difficulty Level
+                </label>
+                <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+                  <Button
+                    variant={difficulty === 'easy' ? 'primary' : 'outline'}
+                    onClick={() => setDifficulty('easy')}
+                    className="min-w-[80px]"
+                  >
+                    😊 Easy
+                  </Button>
+                  <Button
+                    variant={difficulty === 'medium' ? 'primary' : 'outline'}
+                    onClick={() => setDifficulty('medium')}
+                    className="min-w-[80px]"
+                  >
+                    📚 Medium
+                  </Button>
+                  <Button
+                    variant={difficulty === 'hard' ? 'primary' : 'outline'}
+                    onClick={() => setDifficulty('hard')}
+                    className="min-w-[80px]"
+                  >
+                    🔥 Hard
+                  </Button>
+                  <Button
+                    variant={difficulty === 'custom' ? 'primary' : 'outline'}
+                    onClick={() => setDifficulty('custom')}
+                    className="min-w-[80px]"
+                  >
+                    ✨ Custom
+                  </Button>
+                </Stack>
+              </div>
+
+              <Collapse in={difficulty === 'custom'}>
+                <TextField
+                  value={customTopic}
+                  onChange={(e) => setCustomTopic(e.target.value)}
+                  placeholder="E.g., 'historical events', 'science concepts', 'literary analysis'"
+                  variant="outlined"
+                  size="small"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  label="Custom Topic/Theme"
+                  helperText="Enter topics or themes you want the questions to focus on"
+                />
+              </Collapse>
+
+              <Button
+                variant="primary"
+                onClick={handleGenerateMore}
+                disabled={isGenerating}
+                className="w-full"
+              >
+                {isGenerating ? 'Generating...' : 'Generate 5 More Questions'}
+              </Button>
+            </div>
+          </Collapse>
+        </div>
+      )}
 
       <Card className="border-white/20 bg-white/80 shadow-xl backdrop-blur-xl dark:border-white/5 dark:bg-slate-900/70">
         <CardContent className="gap-6">
