@@ -147,6 +147,33 @@ export function Flashcards({ flashcards }: FlashcardsProps) {
     setDirection(0);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(target.tagName))
+      ) {
+        return;
+      }
+
+      if (event.key === 'ArrowRight' && filteredCards.length > 1) {
+        event.preventDefault();
+        handleNext();
+      } else if (event.key === 'ArrowLeft' && filteredCards.length > 1) {
+        event.preventDefault();
+        handlePrevious();
+      } else if (event.key === ' ' && filteredCards.length > 0) {
+        event.preventDefault();
+        setIsFlipped((prev) => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [filteredCards.length, handleNext, handlePrevious, setIsFlipped]);
+
   if (!flashcards || flashcards.length === 0) {
     return (
       <Card className="mx-auto max-w-xl text-center">
@@ -262,7 +289,21 @@ export function Flashcards({ flashcards }: FlashcardsProps) {
         </div>
       ) : (
         <div className="relative flex flex-col items-center gap-6">
-          <div className="relative h-[520px] w-full max-w-3xl cursor-pointer [perspective:1200px]" onClick={() => setIsFlipped((prev) => !prev)}>
+          <div
+            className="relative h-[520px] w-full max-w-3xl cursor-pointer [perspective:1200px]"
+            onClick={() => setIsFlipped((prev) => !prev)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                event.stopPropagation();
+                setIsFlipped((prev) => !prev);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Flashcard. Press space to flip, left arrow for previous card, and right arrow for next card."
+            aria-keyshortcuts="ArrowLeft ArrowRight Space"
+          >
             <AnimatePresence initial={false} custom={direction}>
               <motion.div
                 key={`${index}-${isFlipped ? 'back' : 'front'}`}
