@@ -19,6 +19,10 @@ interface VocabInputProps {
   onLoadingChange: (isLoading: boolean) => void;
 }
 
+const MIN_WORD_NUMBER_DIGITS = 2;
+const WORD_NUMBER_BADGE_BASE_WIDTH = 28;
+const WORD_NUMBER_BADGE_WIDTH_PER_DIGIT = 8;
+
 export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
   const [vocabList, setVocabList] = useState<string[]>(['']);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +35,10 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
   const [paragraphText, setParagraphText] = useState('');
 
   const filledCount = useMemo(() => vocabList.filter((word) => word.trim() !== '').length, [vocabList]);
+  const wordNumberDigits = Math.max(MIN_WORD_NUMBER_DIGITS, String(Math.max(vocabList.length, 1)).length);
+  const wordNumberMinWidth = WORD_NUMBER_BADGE_BASE_WIDTH + wordNumberDigits * WORD_NUMBER_BADGE_WIDTH_PER_DIGIT;
+
+  const formatWordNumber = (position: number) => String(position).padStart(wordNumberDigits, '0');
 
   const handleAddWord = () => setVocabList((prev) => [...prev, '']);
 
@@ -242,7 +250,17 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
                   transition={{ duration: 0.18, ease: 'easeOut' }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Chip label={index + 1} color="secondary" sx={{ minWidth: 36 }} />
+                    <Chip
+                      label={formatWordNumber(index + 1)}
+                      color="secondary"
+                      sx={{
+                        minWidth: wordNumberMinWidth,
+                        fontVariantNumeric: 'tabular-nums',
+                        '& .MuiChip-label': {
+                          px: 1,
+                        },
+                      }}
+                    />
                     <TextField
                       value={word}
                       onChange={(event) => handleWordChange(index, event.target.value)}
@@ -343,5 +361,3 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
 }
 
 // End of file
-
-
