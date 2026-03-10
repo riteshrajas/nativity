@@ -172,7 +172,7 @@ export function Flashcards({ flashcards }: FlashcardsProps) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [filteredCards.length, handleNext, handlePrevious]);
+  }, [filteredCards.length, handleNext, handlePrevious, setIsFlipped]);
 
   if (!flashcards || flashcards.length === 0) {
     return (
@@ -292,9 +292,17 @@ export function Flashcards({ flashcards }: FlashcardsProps) {
           <div
             className="relative h-[520px] w-full max-w-3xl cursor-pointer [perspective:1200px]"
             onClick={() => setIsFlipped((prev) => !prev)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                event.stopPropagation();
+                setIsFlipped((prev) => !prev);
+              }
+            }}
             role="button"
             tabIndex={0}
             aria-label="Flashcard. Press space to flip, left arrow for previous card, and right arrow for next card."
+            aria-keyshortcuts="ArrowLeft ArrowRight Space"
           >
             <AnimatePresence initial={false} custom={direction}>
               <motion.div
