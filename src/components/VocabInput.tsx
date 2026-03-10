@@ -19,6 +19,10 @@ interface VocabInputProps {
   onLoadingChange: (isLoading: boolean) => void;
 }
 
+const MIN_WORD_NUMBER_DIGITS = 2;
+const WORD_NUMBER_BADGE_BASE_WIDTH = 28;
+const WORD_NUMBER_BADGE_WIDTH_PER_DIGIT = 8;
+
 export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
   const [vocabList, setVocabList] = useState<string[]>(['']);
   const [error, setError] = useState<string | null>(null);
@@ -31,8 +35,8 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
   const [paragraphText, setParagraphText] = useState('');
 
   const filledCount = useMemo(() => vocabList.filter((word) => word.trim() !== '').length, [vocabList]);
-  const wordNumberDigits = Math.max(2, String(Math.max(vocabList.length, 1)).length);
-  const wordNumberMinWidth = 28 + wordNumberDigits * 8;
+  const wordNumberDigits = Math.max(MIN_WORD_NUMBER_DIGITS, String(Math.max(vocabList.length, 1)).length);
+  const wordNumberMinWidth = WORD_NUMBER_BADGE_BASE_WIDTH + wordNumberDigits * WORD_NUMBER_BADGE_WIDTH_PER_DIGIT;
 
   const formatWordNumber = (position: number) => String(position).padStart(wordNumberDigits, '0');
 
