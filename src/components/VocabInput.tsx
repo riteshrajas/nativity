@@ -22,6 +22,31 @@ interface VocabInputProps {
 const MIN_WORD_NUMBER_DIGITS = 2;
 const WORD_NUMBER_BADGE_BASE_WIDTH = 28;
 const WORD_NUMBER_BADGE_WIDTH_PER_DIGIT = 8;
+const PRE_FILLED_LISTS = [
+  {
+    label: 'Word',
+    words: [
+      'Embryonic',
+      'Entomologist',
+      'Indefatigable',
+      'Indigenous',
+      'Industrious',
+      'Iridescent',
+      'Insatiable',
+      'Insecticide',
+      'Larvae',
+      'Metamorphosis',
+      'Nemesis',
+      'Nocturnal',
+      'Pollinate',
+      'Proboscis',
+      'Quarantine',
+      'Subterranean',
+      'Trepidation',
+      'Ubiquitous',
+    ],
+  },
+] as const;
 
 export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
   const [vocabList, setVocabList] = useState<string[]>(['']);
@@ -89,6 +114,11 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
     } else {
       setError('Could not extract any words from the text.');
     }
+  };
+
+  const handleApplyPreFilledList = (words: readonly string[]) => {
+    setVocabList([...words]);
+    setError(null);
   };
 
   const handleGenerate = async () => {
@@ -240,6 +270,23 @@ export function VocabInput({ onGenerate, onLoadingChange }: VocabInputProps) {
           </motion.div>
         ) : (
           <Stack spacing={2}>
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Pre-filled
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {PRE_FILLED_LISTS.map((preset) => (
+                  <Chip
+                    key={preset.label}
+                    label={preset.label}
+                    clickable
+                    color="primary"
+                    variant="outlined"
+                    onClick={() => handleApplyPreFilledList(preset.words)}
+                  />
+                ))}
+              </Stack>
+            </Box>
             <AnimatePresence initial={false}>
               {vocabList.map((word, index) => (
                 <motion.div
