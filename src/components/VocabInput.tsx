@@ -24,7 +24,7 @@ const WORD_NUMBER_BADGE_BASE_WIDTH = 28;
 const WORD_NUMBER_BADGE_WIDTH_PER_DIGIT = 8;
 const PRE_FILLED_LISTS = [
   {
-    label: 'Word',
+    label: 'Insect Vocabulary (18 Words)',
     words: [
       'Embryonic',
       'Entomologist',
